@@ -16,7 +16,7 @@ class MailController extends Controller
         
         if ($user != null){
             if($user->isVerified==1){
-                return response()->json(['message'=>'Email already verified'],402);
+                return response()->json(['message'=>'Email already verified'],200);
             }
             $user->isVerified = 1;
             $user->save();

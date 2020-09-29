@@ -22,19 +22,12 @@ class AuthController extends Controller
         //
     }
     public function register(Request $request){
-        // Validation
-        
-        try{
-            $this->validate($request, [
-                'name' => 'required',
-                'email' => 'required|email|unique:users',
-                'password' => ['required','min:6','regex:/[a-z]/','regex:/[A-Z]/','regex:/[0-9]/'],
-                // 'password_confirm' => 'required|same:password'
-            ]);
-        } catch(Exception $e){
-            return response()->json(['details' => $e>errors(),], 422);
-        }
-
+        $this->validate($request, [
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => ['required','min:6','regex:/[a-z]/','regex:/[A-Z]/','regex:/[0-9]/'],
+            // 'password_confirm' => 'required|same:password'
+        ]);
         try{
             $user = new User;
             $user->name = $request->get('name');
@@ -92,7 +85,7 @@ class AuthController extends Controller
         $oldPwd = $request->get('Old_Password');
         $newPwd = $request->get('New_Password');
         if($oldPwd === $newPwd) {
-            return response()->json(['message'=>"New Password can't be same as the old password."],401);
+            return response()->json(['message'=>"New Password can't be same as the old password."],403);
         }
         
         if(!Hash::check($oldPwd, $user->password)){
@@ -100,6 +93,6 @@ class AuthController extends Controller
         }
         $user->password = Hash::make($newPwd);
         $user->save();
-        return response()->json(['message'=>"New Password updated."],401);
+        return response()->json(['message'=>"New Password updated."],200);
     }
 }

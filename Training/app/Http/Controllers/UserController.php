@@ -49,7 +49,7 @@ class UserController extends Controller
             ]);
 
             if(Hash::check($request->get('New_Password'), $user->password)){
-                return response()->json(['message'=>"New Password cannot be same as the old password."],401);
+                return response()->json(['message'=>"New Password cannot be same as the old password."],403);
             }
             $user->password = app('hash')->make($request->get('New_Password'));
             $user->save();

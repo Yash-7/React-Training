@@ -48,20 +48,20 @@ class AdminController extends Controller
             // Mail::to($user->email)->send(new verifyEmail($code));
             return response()->json(['user' => $user, 'createdBy' => Auth::user()->email], 201);
 
-        } else return response()->json(['message'=>'Unauthorized. Not an admin'],402);
+        } else return response()->json(['message'=>'Unauthorized. Not an admin'],401);
     }
 
     public function destroy($userId){
         $deleteUser = User::find($userId);
-        if($deleteUser==null) return response()->json(['Error'=>'User unavailable'],401);
-        if($deleteUser->role == 'admin') return response()->json(['message'=>'Admin cant be deleted'],402);
+        if($deleteUser==null) return response()->json(['Error'=>'User unavailable'],400);
+        if($deleteUser->role == 'admin') return response()->json(['message'=>'Admin cant be deleted'],401);
         if($this->is_Admin(Auth::user())){
             $deleteUser->deletedBy=Auth::user()->id;
             $deleteUser->save();
             $deleteUser->delete();
             return response()->json(['message'=>'Deleted User','user'=>$deleteUser],200);
         } else {
-            return response()->json(['message'=>'Unauthorized. Not an admin'],402);
+            return response()->json(['message'=>'Unauthorized. Not an admin'],401);
         }
     }
 }
