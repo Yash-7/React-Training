@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\User;
+use App\Etoken;
+use App\Ftoken;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -24,6 +26,7 @@ class AuthController extends Controller
         
         try{
             $this->validate($request, [
+                'name' => 'required',
                 'email' => 'required|email|unique:users',
                 'password' => ['required','min:6','regex:/[a-z]/','regex:/[A-Z]/','regex:/[0-9]/'],
                 // 'password_confirm' => 'required|same:password'
@@ -34,11 +37,18 @@ class AuthController extends Controller
 
         try{
             $user = new User;
+            $user->name = $request->get('name');
             $user->email = $request->get('email');
             $password = $request->get('password');
             $user->password = app('hash')->make($password);
-            $user->verificationCode = sha1(time());
             $user->save();
+            $etoken = new Etoken;
+            $etoken->verificationCode = str_random(32);
+            $user->etoken()->save($etoken);
+            $ftoken = new Ftoken;
+            $ftoken->verificationCode = str_random(32);
+            $user->ftoken()->save($ftoken);
+            
 
             // $code = "whvbj ckejbw";
             //send mail after signup
@@ -47,7 +57,7 @@ class AuthController extends Controller
 
             return response()->json(['user' => $user, 'message' => 'CREATED'], 201);
         } catch(Exception $e){
-            return $e;
+            throw $e;
         }
     }  
     public function login(Request $request) {
@@ -59,12 +69,12 @@ class AuthController extends Controller
 
         $credentials = $request->only(['email', 'password']);
         
-        if (! $token = Auth::attempt($credentials)) {
+        if (! $token =Auth::attempt($credentials)) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
         $user = User::where(['email'=>$request->email])->first();
         if($user->isVerified == 0) {
-            return "email not verified";
+            return response()->json(['message'=>"email not verified"],401);
         }
         return $this->respondWithToken($token);
     }
@@ -82,14 +92,14 @@ class AuthController extends Controller
         $oldPwd = $request->get('Old_Password');
         $newPwd = $request->get('New_Password');
         if($oldPwd === $newPwd) {
-            return "New Password can't be same as the old password.";
+            return response()->json(['message'=>"New Password can't be same as the old password."],401);
         }
         
         if(!Hash::check($oldPwd, $user->password)){
-            return "Old password entered is incorrect.";
+            return response()->json(['message'=>"Old Password entered is incorrect."],401);
         }
         $user->password = Hash::make($newPwd);
         $user->save();
-        return "new Password updated";
+        return response()->json(['message'=>"New Password updated."],401);
     }
 }
