@@ -14,7 +14,6 @@ class Ftoken extends Model
     }
     protected $table = "ftoken";
 
-    protected $fillable = ['user_id'];
+    protected $fillable = ['user_id','verificationCode'];
 
-    protected $hidden = ['verificationCode'];
 }

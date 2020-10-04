@@ -9,6 +9,7 @@ use App\Ftoken;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Builder;
 
 class AuthController extends Controller
 {
@@ -67,9 +68,10 @@ class AuthController extends Controller
         }
         $user = User::where(['email'=>$request->email])->first();
         if($user->isVerified == 0) {
-            return response()->json(['message'=>"email not verified"],401);
+            return response()->json(['message'=>"email not verified"],403);
         }
-        return $this->respondWithToken($token);
+        $ftoken = $user->ftoken()->first();
+        return $this->respondWithToken($token,$user->only(['id','name','email','role']),$ftoken->verificationCode);
     }
 
 
@@ -81,7 +83,7 @@ class AuthController extends Controller
             // 'password_confirm' => 'required|same:password'
         ]);
         $user = User::where(['email'=>$request->get('email')])->first();
-        if($user == null) return "Email incorrect.";
+        if($user == null) return response()->json(['message'=>'email incorrect'],401);
         $oldPwd = $request->get('Old_Password');
         $newPwd = $request->get('New_Password');
         if($oldPwd === $newPwd) {
@@ -94,5 +96,53 @@ class AuthController extends Controller
         $user->password = Hash::make($newPwd);
         $user->save();
         return response()->json(['message'=>"New Password updated."],200);
+    }
+
+    public function forgot(Request $request, $token){
+        $user = User::whereHas('ftoken',function(Builder $query) use ($token){
+            $query->where('verificationCode','=',$token);
+        })->first();
+        if($user!=null){
+            $this->validate($request,[
+                'New_Password'=>['required','min:6','regex:/[a-z]/','regex:/[A-Z]/','regex:/[0-9]/'] 
+            ]);
+
+            if(Hash::check($request->get('New_Password'), $user->password)){
+                return response()->json(['message'=>"New Password cannot be same as the old password."],403);
+            }
+            $user->password = app('hash')->make($request->get('New_Password'));
+            $user->save();
+            return response()->json(['user'=>$user],201);
+        } else {
+            return response()->json(['message'=>'Token is tampered'],401);
+        }
+    }
+
+    public function checkEmail(Request $request){
+        $this->validate($request, [
+            'email' => 'required|email',
+        ]);
+        $user = User::where(['email'=>$request->get('email')])->first();
+        if($user!=null){
+            return response()->json(['user'=>$user],200);
+        } else {
+            return response()->json(['message'=>'Email incorrect'],404);
+        }
+    }
+    public function createPassword(Request $request, $token) {
+        $user = User::whereHas('ftoken',function(Builder $query) use ($token){
+            $query->where('verificationCode','=',$token);
+        })->first();
+        if($user!=null){
+            $this->validate($request,[
+                'password'=>['required','min:6','regex:/[a-z]/','regex:/[A-Z]/','regex:/[0-9]/'] 
+            ]);
+            if($user->password != null) return response()->json(['message'=>'Password already created'],400);
+            $user->password = app('hash')->make($request->get('password'));
+            $user->save();
+            return response()->json(['user'=>$user],201);
+        } else {
+            return response()->json(['message'=>'Token is tampered'],401);
+        }
     }
 }

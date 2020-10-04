@@ -21,7 +21,7 @@ class AdminController extends Controller
         if($this->is_Admin(Auth::user())){
             $normal = User::where('role','normal')->get();
             return response()->json(['users'=>$normal],200);
-        }
+        } else return response()->json(['user'=>Auth::user(),'message'=>'Unauthorized. Not an admin'],401);
     }
 
     public function create(Request $request){
@@ -46,9 +46,9 @@ class AdminController extends Controller
             // $code = "whvbj ckejbw";
             //send mail after signup
             // Mail::to($user->email)->send(new verifyEmail($code));
-            return response()->json(['user' => $user, 'createdBy' => Auth::user()->email], 201);
+            return response()->json(['user' => $user], 201);
 
-        } else return response()->json(['message'=>'Unauthorized. Not an admin'],401);
+        } else return response()->json(['user'=>Auth::user(),'message'=>'Unauthorized. Not an admin'],401);
     }
 
     public function destroy($userId){

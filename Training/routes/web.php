@@ -15,7 +15,9 @@ $router->group(['prefix'=>'api'],function () use ($router){
 
     $router->get('users/{id}', 'UserController@show');
 
-    $router->post('users/forgotPassword/{token}','UserController@forgot');
+    $router->post('forgotPassword/{token}','AuthController@forgot');
+
+    $router->post('checkEmail','AuthController@checkEmail');
 
     $router->get('verify/{token}','MailController@verify');
 
@@ -23,7 +25,7 @@ $router->group(['prefix'=>'api'],function () use ($router){
 
     $router->post('admin/users/create','AdminController@create');
 
-    $router->post('users/createPassword/{token}','UserController@createPassword');
+    $router->post('users/createPassword/{token}','AuthController@createPassword');
 
     $router->get('admin/users/delete/{userId}','AdminController@destroy');
 });
