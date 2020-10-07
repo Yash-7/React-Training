@@ -1,0 +1,1 @@
+<a href="{{url('http://localhost:3000/changePassword/'.$token)}}">Change your password</a>

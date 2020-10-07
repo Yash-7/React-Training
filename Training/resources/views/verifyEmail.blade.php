@@ -1,0 +1,1 @@
+<a href="{{url('http://localhost:3000/verify/'.$token)}}">Verify Email</a>

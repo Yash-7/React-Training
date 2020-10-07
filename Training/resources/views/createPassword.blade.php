@@ -1,0 +1,1 @@
+<a href="{{url('http://localhost:3000/createPassword/'.$token)}}">Create your password</a>

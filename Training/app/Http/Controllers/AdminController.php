@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use App\User;
 use App\Etoken;
 use App\Ftoken;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\createPassword;
+
 class AdminController extends Controller
 {
     public function __construct(){
@@ -43,9 +46,7 @@ class AdminController extends Controller
             $ftoken->verificationCode = str_random(32);
             $user->ftoken()->save($ftoken);
 
-            // $code = "whvbj ckejbw";
-            //send mail after signup
-            // Mail::to($user->email)->send(new verifyEmail($code));
+            Mail::to($user->email)->send(new createPassword($ftoken->verificationCode));
             return response()->json(['user' => $user], 201);
 
         } else return response()->json(['user'=>Auth::user(),'message'=>'Unauthorized. Not an admin'],401);
@@ -63,5 +64,26 @@ class AdminController extends Controller
         } else {
             return response()->json(['message'=>'Unauthorized. Not an admin'],401);
         }
+    }
+
+    public function filter(Request $request){
+
+        $users = User::where('role','=','normal');
+        // return $request->all();
+        if($request->has('name')){
+            $users->where('name','LIKE','%'.$request->get('name').'%'); 
+        }
+        if($request->has('email')){
+            $users->where('email','LIKE','%'.$request->get('email').'%');
+        }
+        if($request->has('radio')){
+            if($request->get('radio')=="verified"){
+                $users->where('isVerified','=','1');
+            }
+            if($request->get('radio')=="nonVerified"){
+                $users->where('isVerified','=','0');
+            }
+        }
+        return $users->get();
     }
 }

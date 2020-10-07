@@ -10,6 +10,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\MyEmail;
+use App\Mail\verifyEmail;
+use App\Mail\forgotPassword;
 
 class AuthController extends Controller
 {
@@ -43,17 +47,18 @@ class AuthController extends Controller
             $ftoken->verificationCode = str_random(32);
             $user->ftoken()->save($ftoken);
             
-
-            // $code = "whvbj ckejbw";
-            //send mail after signup
-            // Mail::to($user->email)->send(new verifyEmail($code));
-
-
+            Mail::to($user->email)->send(new verifyEmail($etoken->verificationCode));
+            
             return response()->json(['user' => $user, 'message' => 'CREATED'], 201);
         } catch(Exception $e){
             throw $e;
         }
     }  
+    public function emailTest(){
+        $code = "whvbj ckejbw";
+        Mail::to('yashwanthnaik10@gmail.com')->send(new MyEmail($code));
+        // return User::all();
+    }
     public function login(Request $request) {
         //validation 
         $this->validate($request, [
@@ -124,6 +129,8 @@ class AuthController extends Controller
         ]);
         $user = User::where(['email'=>$request->get('email')])->first();
         if($user!=null){
+            $token = ($user->ftoken()->get())[0] ->verificationCode;
+            Mail::to($request->get('email'))->send(new forgotPassword($token));
             return response()->json(['user'=>$user],200);
         } else {
             return response()->json(['message'=>'Email incorrect'],404);
@@ -139,6 +146,7 @@ class AuthController extends Controller
             ]);
             if($user->password != null) return response()->json(['message'=>'Password already created'],400);
             $user->password = app('hash')->make($request->get('password'));
+            $user->isVerified = 1;
             $user->save();
             return response()->json(['user'=>$user],201);
         } else {

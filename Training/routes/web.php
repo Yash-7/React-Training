@@ -28,4 +28,8 @@ $router->group(['prefix'=>'api'],function () use ($router){
     $router->post('users/createPassword/{token}','AuthController@createPassword');
 
     $router->get('admin/users/delete/{userId}','AdminController@destroy');
+
+    $router->post('admin/users/filter','AdminController@filter');
+
+    $router->get('email','AuthController@emailTest');
 });
