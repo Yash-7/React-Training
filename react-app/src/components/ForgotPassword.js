@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { Component } from "react";
 import { Form, Button } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
+import LoadingSpinner from "./LoadingSpinner";
 
 class ForgotPassword extends Component {
   state = {
@@ -9,6 +10,7 @@ class ForgotPassword extends Component {
     done: false,
     validated: false,
     errResp: "",
+    loading: false,
   };
 
   onChange = (e) => {
@@ -27,21 +29,23 @@ class ForgotPassword extends Component {
       validated: true,
     });
     if (form.checkValidity()) {
-      axios
-        .post("http://localhost:8000/api/checkEmail", {
-          email: this.state.email,
-        })
-        .then((res) => {
-          console.log(res);
-          this.setState({ done: true });
-        })
-        .catch((err) => {
-          if (err.response.status === 404) {
-            this.setState({
-              errResp: "User does not exist",
-            });
-          }
-        });
+      this.setState({ loading: true }, () => {
+        axios
+          .post("http://localhost:8000/api/checkEmail", {
+            email: this.state.email,
+          })
+          .then((res) => {
+            console.log(res);
+            this.setState({ done: true });
+          })
+          .catch((err) => {
+            if (err.response.status === 404) {
+              this.setState({
+                errResp: "User does not exist",
+              });
+            }
+          });
+      });
     }
   };
 
@@ -83,9 +87,13 @@ class ForgotPassword extends Component {
             </Form.Control.Feedback>
           </Form.Group>
 
-          <Button variant="primary" type="submit">
-            Submit
-          </Button>
+          {this.state.loading ? (
+            <LoadingSpinner />
+          ) : (
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+          )}
         </Form>
       </div>
     );

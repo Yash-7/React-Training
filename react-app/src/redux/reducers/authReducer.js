@@ -1,6 +1,8 @@
 const initialState = {
-  isLogged: false,
-  loggedUser: {},
+  isLogged: localStorage.getItem("token") ? true : false,
+  loggedUser: localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user"))
+    : {},
 };
 
 const authReducer = (state = initialState, action) => {
@@ -12,6 +14,7 @@ const authReducer = (state = initialState, action) => {
       };
     }
     case "LOGOUT": {
+      localStorage.clear();
       return {
         isLogged: false,
         loggedUser: {},

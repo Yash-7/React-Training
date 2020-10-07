@@ -32,7 +32,6 @@ class UserComponent extends Component {
 
 const mapStatetoProps = (state) => {
   const { auth } = state;
-  console.log(auth);
   return auth;
 };
 

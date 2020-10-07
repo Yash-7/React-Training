@@ -3,6 +3,7 @@ import { Form, Col, Button } from "react-bootstrap";
 import axios from "axios";
 import { connect } from "react-redux";
 import { createUser } from "../redux/actions";
+import LoadingSpinner from "./LoadingSpinner";
 
 class AddUser extends Component {
   state = {
@@ -11,6 +12,7 @@ class AddUser extends Component {
     validated: false,
     errResp: "",
     succResp: "",
+    loading: false,
   };
   onChange = (e) => {
     this.setState({
@@ -28,40 +30,44 @@ class AddUser extends Component {
       validated: true,
     });
     if (form.checkValidity() === true) {
-      axios
-        .post(
-          "http://localhost:8000/api/admin/users/create",
-          {
-            name: this.state.username,
-            email: this.state.email,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+      this.setState({ loading: true }, () => {
+        axios
+          .post(
+            "http://localhost:8000/api/admin/users/create",
+            {
+              name: this.state.username,
+              email: this.state.email,
             },
-          }
-        )
-        .then((res) => {
-          this.setState({
-            errResp: "",
-            succResp: "User created",
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          )
+          .then((res) => {
+            this.setState({ loading: false });
+            this.setState({
+              errResp: "",
+              succResp: "User created",
+            });
+            this.props.createUser(res.data.user);
+          })
+          .catch((err) => {
+            this.setState({ loading: false });
+            console.log(err);
+            if (err.response.status === 422) {
+              this.setState({
+                errResp: "User already exists",
+              });
+            }
+            if (err.response.status === 401) {
+              this.setState({
+                errResp:
+                  "You are not authorized to create user. Login and try again",
+              });
+            }
           });
-          this.props.createUser(res.data.user);
-        })
-        .catch((err) => {
-          console.log(err);
-          if (err.response.status === 422) {
-            this.setState({
-              errResp: "User already exists",
-            });
-          }
-          if (err.response.status === 401) {
-            this.setState({
-              errResp:
-                "You are not authorized to create user. Login and try again",
-            });
-          }
-        });
+      });
     }
   };
 
@@ -101,9 +107,13 @@ class AddUser extends Component {
               />
             </Form.Group>
           </Form.Row>
-          <Button variant="primary" type="submit">
-            Submit
-          </Button>
+          {this.state.loading ? (
+            <LoadingSpinner />
+          ) : (
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+          )}
         </Form>
       </div>
     );

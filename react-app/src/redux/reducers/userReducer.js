@@ -7,7 +7,7 @@ const userReducer = (state = initialState, action) => {
     case "GETUSERS": {
       return {
         ...state,
-        users: [...action.payload.users],
+        users: [...action.payload],
       };
     }
     case "CREATEUSER": {

@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { Form } from "react-bootstrap";
 import { Button } from "react-bootstrap";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
+import LoadingSpinner from "./LoadingSpinner";
 
 class SignUp extends Component {
   state = {
@@ -12,7 +13,22 @@ class SignUp extends Component {
     validated: false,
     errResp: "",
     succResp: "",
+    redirect: "",
+    loading: false,
   };
+  componentDidMount() {
+    if (localStorage.getItem("token")) {
+      if (JSON.parse(localStorage.getItem("user")).role === "admin") {
+        this.setState({
+          redirect: "/admin",
+        });
+      } else {
+        this.setState({
+          redirect: "/user",
+        });
+      }
+    }
+  }
   onChange = (e) => {
     this.setState({
       [e.target.name]: e.target.value,
@@ -30,30 +46,35 @@ class SignUp extends Component {
       validated: true,
     });
     if (form.checkValidity() === true) {
-      axios
-        .post("http://localhost:8000/api/register", {
-          name: this.state.username,
-          email: this.state.email,
-          password: this.state.password,
-        })
-        .then((res) => {
-          console.log(res);
-          this.setState({
-            errResp: "",
-            succResp:
-              "Your account has been created. Verify your email and login",
-          });
-        })
-        .catch((err) => {
-          if (err.response.status === 422) {
+      this.setState({ loading: true }, () => {
+        axios
+          .post("http://localhost:8000/api/register", {
+            name: this.state.username,
+            email: this.state.email,
+            password: this.state.password,
+          })
+          .then((res) => {
+            this.setState({ loading: false });
+            console.log(res);
             this.setState({
-              errResp: "User already exists. Go to Login",
+              errResp: "",
+              succResp:
+                "Your account has been created. Verify your email and login",
             });
-          }
-        });
+          })
+          .catch((err) => {
+            this.setState({ loading: false });
+            if (err.response.status === 422) {
+              this.setState({
+                errResp: "User already exists. Go to Login",
+              });
+            }
+          });
+      });
     }
   };
   render() {
+    if (this.state.redirect) return <Redirect to={this.state.redirect} />;
     return (
       <div
         className="container"
@@ -121,10 +142,13 @@ class SignUp extends Component {
               letter and 1 number.
             </Form.Control.Feedback>
           </Form.Group>
-
-          <Button variant="primary" type="submit">
-            Submit
-          </Button>
+          {this.state.loading ? (
+            <LoadingSpinner />
+          ) : (
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+          )}
         </Form>
         <br />
         <div>

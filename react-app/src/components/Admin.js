@@ -6,6 +6,7 @@ import { getUsers } from "../redux/actions";
 import axios from "axios";
 import AddUser from "./AddUser";
 import User from "./User";
+import Filter from "./Filter";
 
 class Admin extends Component {
   state = {
@@ -14,6 +15,7 @@ class Admin extends Component {
   };
 
   handleHome = () => {
+    localStorage.setItem("tab", "home");
     this.setState({
       home: true,
       users: false,
@@ -21,6 +23,7 @@ class Admin extends Component {
   };
 
   handleUsers = () => {
+    localStorage.setItem("tab", "users");
     this.setState({
       home: false,
       users: true,
@@ -28,6 +31,11 @@ class Admin extends Component {
   };
 
   componentDidMount() {
+    const tab = localStorage.getItem("tab");
+    if (tab === "home") {
+      this.handleHome();
+    }
+    if (tab === "users") this.handleUsers();
     axios
       .get("http://localhost:8000/api/admin/users", {
         headers: {
@@ -37,7 +45,7 @@ class Admin extends Component {
         },
       })
       .then((res) => {
-        this.props.getUsers(res.data);
+        this.props.getUsers(res.data.users);
       })
       .catch((err) => {
         console.log(err);
@@ -69,7 +77,7 @@ class Admin extends Component {
                   }
                   onClick={this.state.users ? null : this.handleUsers}
                 >
-                  Users
+                  User Management
                 </div>
               </div>
             </div>
@@ -107,8 +115,26 @@ function Users(props) {
     >
       <AddUser />
       <hr />
-      <h4>Users:</h4>
+      <Filter />
       <br />
+      <div
+        style={{
+          paddingTop: "10px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          background: "#24292e",
+          border: "1px solid grey",
+          borderTopLeftRadius: "10px",
+          borderTopRightRadius: "10px",
+          color: "white",
+        }}
+      >
+        <p style={{ paddingLeft: "15px" }}>Name</p>
+        <p>Email</p>
+        {/* <p>Status</p> */}
+        <p style={{ paddingRight: "15px" }}>Delete</p>
+      </div>
       {props.users.users.map((user) => {
         return <User key={user.id} user={user} />;
       })}

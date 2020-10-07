@@ -5,6 +5,7 @@ import axios from "axios";
 import { Link, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { login } from "../redux/actions";
+import LoadingSpinner from "./LoadingSpinner";
 
 class Login extends Component {
   state = {
@@ -13,8 +14,21 @@ class Login extends Component {
     validated: false,
     errorResp: "",
     redirect: "",
+    loading: false,
   };
-
+  componentDidMount() {
+    if (localStorage.getItem("token")) {
+      if (JSON.parse(localStorage.getItem("user")).role === "admin") {
+        this.setState({
+          redirect: "/admin",
+        });
+      } else {
+        this.setState({
+          redirect: "/user",
+        });
+      }
+    }
+  }
   onChange = (e) => {
     this.setState({
       [e.target.name]: e.target.value,
@@ -32,43 +46,48 @@ class Login extends Component {
     });
 
     if (form.checkValidity() === true) {
-      axios
-        .post("http://localhost:8000/api/login", {
-          email: this.state.email,
-          password: this.state.password,
-        })
-        .then((res) => {
-          localStorage.setItem("token", res.data.token);
-          this.props.login(res.data.user);
-          this.setState({
-            errorResp: "",
+      this.setState({ loading: true }, () => {
+        axios
+          .post("http://localhost:8000/api/login", {
+            email: this.state.email,
+            password: this.state.password,
+          })
+          .then((res) => {
+            this.setState({ loading: false });
+            localStorage.setItem("token", res.data.token);
+            localStorage.setItem("user", JSON.stringify(res.data.user));
+            this.props.login(res.data.user);
+            this.setState({
+              errorResp: "",
+            });
+            if (res.data.user.role === "admin") {
+              this.setState({
+                redirect: "/admin",
+              });
+            } else {
+              this.setState({
+                redirect: "/user",
+              });
+            }
+          })
+          .catch((err) => {
+            this.setState({ loading: false });
+            this.setState({
+              validated: false,
+            });
+            if (err.response.status === 401) {
+              this.setState({
+                errorResp: "Please enter a valid username and password",
+              });
+            }
+            if (err.response.status === 403) {
+              this.setState({
+                errorResp:
+                  "Please verify the verification email sent to your email-id",
+              });
+            }
           });
-          if (res.data.user.role === "admin") {
-            this.setState({
-              redirect: "/admin",
-            });
-          } else {
-            this.setState({
-              redirect: "/user",
-            });
-          }
-        })
-        .catch((err) => {
-          this.setState({
-            validated: false,
-          });
-          if (err.response.status === 401) {
-            this.setState({
-              errorResp: "Please enter a valid username and password",
-            });
-          }
-          if (err.response.status === 403) {
-            this.setState({
-              errorResp:
-                "Please verify the verification email sent to your email-id",
-            });
-          }
-        });
+      });
     }
   };
 
@@ -124,9 +143,13 @@ class Login extends Component {
             </Form.Control.Feedback>
           </Form.Group>
 
-          <Button variant="primary" type="submit">
-            Submit
-          </Button>
+          {this.state.loading ? (
+            <LoadingSpinner />
+          ) : (
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+          )}
         </Form>
         <br />
         <div style={{ fontSize: "small" }}>
@@ -142,4 +165,9 @@ class Login extends Component {
   }
 }
 
+// const mapDispatchtoProps = (dispatch) => {
+//   return { login: () => dispatch(login()) };
+// };
+
 export default connect(null, { login })(Login);
+// export default connect(null, mapDispatchtoProps)(Login);
