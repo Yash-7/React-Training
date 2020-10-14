@@ -17,11 +17,6 @@ use App\Mail\forgotPassword;
 
 class AuthController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         //
@@ -54,11 +49,6 @@ class AuthController extends Controller
             throw $e;
         }
     }  
-    public function emailTest(){
-        $code = "whvbj ckejbw";
-        Mail::to('yashwanthnaik10@gmail.com')->send(new MyEmail($code));
-        // return User::all();
-    }
     public function login(Request $request) {
         //validation 
         $this->validate($request, [

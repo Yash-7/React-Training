@@ -32,4 +32,22 @@ $router->group(['prefix'=>'api'],function () use ($router){
     $router->post('admin/users/filter','AdminController@filter');
 
     $router->get('email','AuthController@emailTest');
+
+    $router->group(['prefix'=>'tasks'],function () use ($router){
+        $router->post('create','TaskController@createTask');
+
+        $router->get('delete/{id}','TaskController@deleteTask');
+
+        $router->post('update/task/{id}','TaskController@updateTask');
+
+        $router->post('update/status/{id}','TaskController@updateStatus');
+
+        $router->get('all','TaskController@getAllTasks');
+
+        $router->get('assigned','TaskController@getAssignedTasks');
+
+        $router->get('todo','TaskController@getTodoTasks');
+
+        $router->post('filter/{type}/{id}','TaskController@filter');
+    });
 });

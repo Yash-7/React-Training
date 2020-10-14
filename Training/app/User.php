@@ -4,6 +4,7 @@ namespace App;
 
 use App\Etoken;
 use App\Ftoken;
+use App\Task;
 use Illuminate\Auth\Authenticatable;
 use Laravel\Lumen\Auth\Authorizable;
 use Illuminate\Database\Eloquent\Model;
@@ -22,39 +23,22 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function ftoken() {
         return $this->hasOne(Ftoken::class);
     }
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
+    public function tasks(){
+        return $this->hasMany(Task::class);
+    }
     protected $fillable = [
         'email', 'role', 'createdBy'
     ];
 
-    /**
-     * The attributes excluded from the model's JSON form.
-     *
-     * @var array
-     */
     protected $hidden = [
         'password', 'verificationCode'
     ];
 
-    /**
-     * Get the identifier that will be stored in the subject claim of the JWT.
-     *
-     * @return mixed
-     */
     public function getJWTIdentifier()
     {
         return $this->getKey();
     }
 
-    /**
-     * Return a key value array, containing any custom claims to be added to the JWT.
-     *
-     * @return array
-     */
     public function getJWTCustomClaims()
     {
         return [];
