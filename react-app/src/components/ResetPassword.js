@@ -78,7 +78,7 @@ class ResetPassword extends Component {
         <div className="succResp">
           {this.state.succResp}
           {this.state.succResp !== "" ? (
-            <Link to="/">Go to Login</Link>
+            <Link to="/">Go back</Link>
           ) : (
             <div></div>
           )}

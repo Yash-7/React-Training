@@ -24,25 +24,15 @@ class User extends Component {
   render() {
     const { user } = this.props;
     return (
-      <div
-        style={{
-          padding: "5px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          background: "rgb(245,245,245)",
-          borderBottom: "1px solid rgb(225,225,225)",
-          borderLeft: "1px solid rgb(225,225,225)",
-          borderRight: "1px solid rgb(225,225,225)",
-        }}
-      >
-        <p style={{ paddingLeft: "10px", paddingTop: "10px" }}>{user.name}</p>
-        <p style={{ paddingTop: "10px" }}>{user.email}</p>
-        {/* <p style={{ paddingTop: "10px" }}>{user.isVerified}</p> */}
-        <Button variant="danger" onClick={this.onDelete.bind(this, user.id)}>
-          Delete
-        </Button>
-      </div>
+      <tr>
+        <td>{user.name}</td>
+        <td>{user.email}</td>
+        <td>
+          <Button variant="danger" onClick={this.onDelete.bind(this, user.id)}>
+            Delete
+          </Button>
+        </td>
+      </tr>
     );
   }
 }

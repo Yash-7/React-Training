@@ -15,6 +15,7 @@ class Login extends Component {
     errorResp: "",
     redirect: "",
     loading: false,
+    a: 1,
   };
   componentDidMount() {
     if (localStorage.getItem("token")) {
@@ -72,6 +73,7 @@ class Login extends Component {
           })
           .catch((err) => {
             this.setState({ loading: false });
+            this.setState({ a: 1 });
             this.setState({
               validated: false,
             });

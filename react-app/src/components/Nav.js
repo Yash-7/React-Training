@@ -6,7 +6,7 @@ import { logout } from "../redux/actions";
 class Nav extends Component {
   render() {
     return (
-      <nav className="nav">
+      <nav className="navBar">
         <h4 style={{ padding: "20px" }}>Vmock Application</h4>
         {this.props.isLogged ? (
           <ul>

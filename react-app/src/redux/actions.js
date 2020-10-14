@@ -27,3 +27,15 @@ export const deleteUser = (id) => {
     payload: id,
   };
 };
+export const getTasks = (tasks) => {
+  return {
+    type: "GETTASKS",
+    payload: tasks,
+  };
+};
+export const addTask = (task) => {
+  return {
+    type: "ADDTASK",
+    payload: task,
+  };
+};

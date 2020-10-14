@@ -34,10 +34,15 @@ class Filter extends Component {
       .catch((err) => {
         console.log(err);
         if (err.response.status === 401) {
-          this.setState({
-            errResp:
-              "You are not authorized to create user. Login and try again",
-          });
+          if (
+            this.state.errResp !==
+            "You are not authorized to create user. Login and try again"
+          ) {
+            this.setState({
+              errResp:
+                "You are not authorized to create user. Login and try again",
+            });
+          }
         }
       });
   }
@@ -64,7 +69,7 @@ class Filter extends Component {
           padding: "20px",
         }}
       >
-        <h4>Filter users</h4>
+        <h5>Find users</h5>
         <div className="errResp">{this.state.errResp}</div>
         <Form>
           <Form.Row>
@@ -115,42 +120,6 @@ class Filter extends Component {
               value="nonVerified"
             />
           </div>
-          {/* <div className="form-check form-check-inline">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="inlineRadioOptions"
-              id="inlineRadio1"
-              value="option1"
-            />
-            <label className="form-check-label" htmlFor="inlineRadio1">
-              1
-            </label>
-          </div>
-          <div className="form-check form-check-inline">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="inlineRadioOptions"
-              id="inlineRadio2"
-              value="option2"
-            />
-            <label className="form-check-label" htmlFor="inlineRadio2">
-              2
-            </label>
-          </div>
-          <div className="form-check form-check-inline">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="inlineRadioOptions"
-              id="inlineRadio3"
-              value="option3"
-            />
-            <label className="form-check-label" htmlFor="inlineRadio3">
-              3 
-            </label> */}
-          {/* </div> */}
         </Form>
       </div>
     );
