@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Form, Modal, Button } from "react-bootstrap";
+import { Form, Modal, Button, Col } from "react-bootstrap";
 import axios from "axios";
 import LoadingSpinner from "./LoadingSpinner";
 import { connect } from "react-redux";
@@ -57,13 +57,17 @@ class AddTask extends Component {
           )
           .then((res) => {
             this.setState({ loading: false });
-            console.log(res);
             this.props.addTask({ task: res.data.task, case: "ASSIGNED" });
             if (this.props.loggedUser.role === "admin")
               this.props.addTask({ task: res.data.task, case: "ALL" });
             this.setState({
               errResp: "",
               modalShow: false,
+              title: "",
+              description: "",
+              dueDate: "",
+              assignee: "",
+              validated: false,
             });
           })
           .catch((err) => {
@@ -146,7 +150,7 @@ class AddTask extends Component {
                 </Form.Control.Feedback>
               </Form.Group>
               <Form.Row>
-                <Form.Group controlId="Assignee">
+                <Form.Group as={Col} controlId="Assignee">
                   <Form.Label>Assignee</Form.Label>
                   <Form.Control
                     type="text"
@@ -160,7 +164,7 @@ class AddTask extends Component {
                     Please enter an assignee for the task.
                   </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group controlId="Due Date">
+                <Form.Group as={Col} controlId="Due Date">
                   <Form.Label>Due Date</Form.Label>
                   <Form.Control
                     type="datetime-local"

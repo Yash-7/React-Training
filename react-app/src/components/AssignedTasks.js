@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Container, Row, Col } from "react-bootstrap";
+import AssignedTaskCard from "./AssignedTaskCard";
+import TaskFilter from "./TaskFilter";
 
 class AssignedTasks extends Component {
   render() {
@@ -10,37 +12,25 @@ class AssignedTasks extends Component {
     let completed = [...tasks.filter((task) => task.status === "completed")];
     return (
       <div style={{ padding: "20px", backgroundColor: "white" }}>
-        <h3>Filter Will come here</h3>
+        <TaskFilter type="assigned" />
         <Container>
           <Row>
             <Col style={{ borderRight: "1px solid grey" }}>
               <p>TODO</p>
               {todo.map((task) => {
-                return (
-                  <p key={task.id}>
-                    {task.title}--{task.description}
-                  </p>
-                );
+                return <AssignedTaskCard key={task.id} task={task} />;
               })}
             </Col>
             <Col style={{ borderRight: "1px solid grey" }}>
               <p>IN-PROGRESS</p>
               {inProgress.map((task) => {
-                return (
-                  <p key={task.id}>
-                    {task.title}--{task.description}
-                  </p>
-                );
+                return <AssignedTaskCard key={task.id} task={task} />;
               })}
             </Col>
             <Col>
               <p>COMPLETED</p>
               {completed.map((task) => {
-                return (
-                  <p key={task.id}>
-                    {task.title}--{task.description}
-                  </p>
-                );
+                return <AssignedTaskCard key={task.id} task={task} />;
               })}
             </Col>
           </Row>

@@ -52,7 +52,7 @@ class Tasks extends Component {
             <AssignedTasks type="assigned" />
           </Tab>
           {this.props.auth.loggedUser.role === "admin" ? (
-            <Tab eventKey="all" title="All">
+            <Tab eventKey="all" title="All Tasks">
               <AllTasks type="all" />
             </Tab>
           ) : null}

@@ -39,3 +39,21 @@ export const addTask = (task) => {
     payload: task,
   };
 };
+export const updateStatus = (task) => {
+  return {
+    type: "UPDATESTATUS",
+    payload: task,
+  };
+};
+export const editTask = (payload) => {
+  return {
+    type: "EDITTASK",
+    payload,
+  };
+};
+export const deleteTask = (id) => {
+  return {
+    type: "DELETETASK",
+    payload: id,
+  };
+};

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Container, Row, Col } from "react-bootstrap";
 import MyTaskCard from "./MyTaskCard";
+import TaskFilter from "./TaskFilter";
 
 class MyTasks extends Component {
   render() {
@@ -11,7 +12,7 @@ class MyTasks extends Component {
     let completed = [...tasks.filter((task) => task.status === "completed")];
     return (
       <div style={{ padding: "20px", backgroundColor: "white" }}>
-        <h3>Filter Will come here</h3>
+        <TaskFilter type="todo" />
         <Container>
           <Row>
             <Col style={{ borderRight: "1px solid grey" }}>
