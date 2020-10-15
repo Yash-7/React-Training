@@ -18,7 +18,7 @@ class CreateTasksTable extends Migration
             $table->string('title');
             $table->string('description');
             $table->bigInteger('assignee');
-            $table->timestamp('dueDate');
+            $table->dateTime('dueDate');
             $table->string('status');
             $table->bigInteger('user_id')->unsigned();
             $table->foreign('user_id')

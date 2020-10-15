@@ -82,20 +82,43 @@ class TaskController extends Controller
         $task = Task::find($id);
         $creator = $task->user_id;
         if(Auth::id()!= $creator) return response()->json(['message'=>'not authorised to delete'],403);
-
+        $task->status = "deleted";
+        $task->save();
         $task->delete();
         return response()->json(['message'=>'task deleted'],200);
     }
     public function filter(Request $request,$type,$id){
         if($type=="todo"){
-            $tasks = Task::where('assignee','=',$userId)->get();
+            $tasks = Task::where('assignee','=',$id);
         }
-        if($type=="assigned"){
-            $tasks = User::find($userId)->tasks;
+        else if($type=="assigned"){
+            $tasks = User::find($id)->tasks()->orderBy('dueDate');
         }
-        if($type=="all" && Auth::user()->role == "admin"){
-            $tasks=Task::orderBy('dueDate')->get();
+        else if($type=="all" && Auth::user()->role == "admin"){
+            $tasks=Task::orderBy('dueDate');
         }
-        return Auth::id();
+        if($request->has('keyword')){
+            $tasks->where(function($q) use ($request) {
+                $q->where('title','LIKE','%'.$request->get('keyword').'%')
+                  ->orWhere('description','LIKE','%'.$request->get('keyword').'%');
+            });
+        }
+        if($request->has('assignor')){
+            $tasks->where('user_id','=',$request->input('assignor'));
+        }
+        if($request->has('assignee')){
+            $tasks->where('assignee','=',$request->input('assignee'));
+        }
+        if($request->has('startTime')){
+            $start = new DateTime($request->get('startTime'));
+            $start = $start->format('Y-m-d H:i:s');
+            $tasks->where('dueDate','>',$start);
+        }
+        if($request->has('endTime')){
+            $end = new DateTime($request->get('endTime'));
+            $end = $end->format('Y-m-d H:i:s');
+            $tasks->where('dueDate','<',$end);
+        }
+        return $tasks->get();
     }
 }
