@@ -2,16 +2,47 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MyEvent;
 use DateTime;
+use Carbon\Carbon;
 use App\User;
 use App\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\newTask;
 
 class TaskController extends Controller
 {
     public function __construct(){
         $this->middleware('auth');
+    }
+    public function data(){
+        $id = Auth::id();
+        $mytime = Carbon::now('Asia/Kolkata');
+        // return $mytime->toTimeString();
+        $todoData=[
+            'todo'=>Task::where('assignee',$id)->where('status','assigned')->count(),
+            'inProgress'=>Task::where('assignee',$id)->where('status','in-progress')->count(),
+            'completed'=>Task::where('assignee',$id)->where('status','completed')->count(),
+            'overdue'=>Task::where('assignee',$id)->where('dueDate','<',$mytime)->where('status','!=','completed')->count(),
+        ];
+        $assignedData=[
+            'assigned'=>User::find($id)->tasks()->where('status','assigned')->count(),
+            'inProgress'=>User::find($id)->tasks()->where('status','in-progress')->count(),
+            'completed'=>User::find($id)->tasks()->where('status','completed')->count(),
+            'overdue'=>User::find($id)->tasks()->where('dueDate','<',$mytime)->where('status','!=','completed')->count(),
+        ];
+        if(Auth::user()->role=="admin"){
+            $allData=[
+                'assigned'=>Task::where('status','assigned')->count(),
+                'inProgress'=>Task::where('status','in-progress')->count(),
+                'completed'=>Task::where('status','completed')->count(),
+                'overdue'=>Task::where('dueDate','<',$mytime)->where('status','!=','completed')->count(),
+            ];
+            return response()->json(['myTasks'=>$todoData,'assignedTasks'=>$assignedData,'allTasks'=>$allData]);    
+        }
+        return response()->json(['myTasks'=>$todoData,'assignedTasks'=>$assignedData]);
     }
     public function getAllTasks(){
         if(Auth::user()->role == "admin"){
@@ -46,9 +77,9 @@ class TaskController extends Controller
         $date = new DateTime($request->get('dueDate'));
         $task->dueDate=$date->format('Y-m-d H:i:s');
         $task->status = 'assigned';
-
+        
         $creator->tasks()->save($task);
-        // Send mail
+        Mail::to(User::find($request->input('assignee'))->email)->send(new newTask($task));
         return response()->json(['message'=>'Task created','task'=>$task],201);
     }
 
@@ -60,6 +91,8 @@ class TaskController extends Controller
         if(Auth::id()!=$task->assignee) return response()->json(['message'=>'User unauthorised'],401);
         $task->status = $request->input('status');
         $task->save();
+        // Event::fire(new Event("hello"));
+        event(new MyEvent('hello world'));
         return response()->json(['message'=>'Status updated'],200);
     }
 

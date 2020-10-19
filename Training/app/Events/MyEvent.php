@@ -7,9 +7,9 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class Event implements ShouldBroadcast
+class MyEvent implements ShouldBroadcast
 {
-    use  Dispatchable,InteractsWithSockets, SerializesModels;
+  use  Dispatchable, InteractsWithSockets, SerializesModels;
 
   public $message;
 

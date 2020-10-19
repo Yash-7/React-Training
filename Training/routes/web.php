@@ -49,5 +49,7 @@ $router->group(['prefix'=>'api'],function () use ($router){
         $router->get('todo','TaskController@getTodoTasks');
 
         $router->post('filter/{type}/{id}','TaskController@filter');
+
+        $router->get('data','TaskController@data');
     });
 });
