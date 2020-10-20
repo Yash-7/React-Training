@@ -42,7 +42,7 @@ class Tasks extends Component {
   }
   render() {
     return (
-      <div style={{ marginTop: "30px" }}>
+      <div style={{ marginTop: "20px" }}>
         <AddTask />
         <Tabs transition={false} defaultActiveKey="myTasks">
           <Tab eventKey="myTasks" title="My Tasks">

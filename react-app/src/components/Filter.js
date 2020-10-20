@@ -34,13 +34,9 @@ class Filter extends Component {
       .catch((err) => {
         console.log(err);
         if (err.response.status === 401) {
-          if (
-            this.state.errResp !==
-            "You are not authorized to create user. Login and try again"
-          ) {
+          if (this.state.errResp !== "You are not authorised") {
             this.setState({
-              errResp:
-                "You are not authorized to create user. Login and try again",
+              errResp: "You are not authorised",
             });
           }
         }

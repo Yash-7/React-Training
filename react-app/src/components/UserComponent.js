@@ -1,15 +1,22 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Row, Col } from "react-bootstrap";
+import { Row, Col, Toast } from "react-bootstrap";
 import { HiUserCircle } from "react-icons/hi";
 import Tasks from "./Tasks";
+import Dashboard from "./Dashboard";
+import Pusher from "pusher-js";
 
 class UserComponent extends Component {
   state = {
     home: true,
     tasks: false,
+    toast: false,
+    toastBody: "",
   };
 
+  toggleToast = () => {
+    this.setState({ toast: !this.state.toast });
+  };
   handleHome = () => {
     localStorage.setItem("tab", "home");
     this.setState({
@@ -26,6 +33,26 @@ class UserComponent extends Component {
     });
   };
   componentDidMount() {
+    Pusher.logToConsole = true;
+
+    const pusher = new Pusher("53ec7dc21ce2dd50eedf", {
+      cluster: "ap2",
+    });
+
+    const myChannel = pusher.subscribe("my-channel");
+    myChannel.bind("statusUpdate", (data) => {
+      if (data.id === JSON.parse(localStorage.getItem("user")).id) {
+        this.setState({ toast: true, toastBody: data.message });
+      }
+    });
+
+    const channel = pusher.subscribe("channel");
+    channel.bind("createTask", (data) => {
+      if (parseInt(data.id) === JSON.parse(localStorage.getItem("user")).id) {
+        this.setState({ toast: true, toastBody: data.message });
+      }
+    });
+
     const tab = localStorage.getItem("tab");
     if (tab === "home") this.handleHome();
     if (tab === "tasks") this.handleTasks();
@@ -48,7 +75,7 @@ class UserComponent extends Component {
                   }
                   onClick={this.state.home ? null : this.handleHome}
                 >
-                  Home
+                  Dashboard
                 </div>
                 <div
                   className={
@@ -62,8 +89,32 @@ class UserComponent extends Component {
             </div>
           </Col>
           <Col xs={9}>
+            <Toast
+              onClose={this.toggleToast}
+              show={this.state.toast}
+              delay={6000}
+              // animated={fals
+              autohide
+              style={{
+                position: "fixed",
+                top: "20px",
+                right: "30px",
+                zIndex: 100,
+              }}
+            >
+              <Toast.Header>
+                <img
+                  src="holder.js/20x20?text=%20"
+                  className="rounded mr-2"
+                  alt=""
+                />
+                <strong className="mr-auto">Notification</strong>
+                <small>a while ago</small>
+              </Toast.Header>
+              <Toast.Body>{this.state.toastBody}</Toast.Body>
+            </Toast>
             {this.state.home ? (
-              <Home user={this.props.auth.loggedUser} />
+              <Dashboard user={this.props.auth.loggedUser} />
             ) : null}
             {this.state.tasks ? <Tasks tasks={this.props.tasks} /> : null}
           </Col>
@@ -71,14 +122,6 @@ class UserComponent extends Component {
       </div>
     );
   }
-}
-
-function Home(props) {
-  return (
-    <div style={{ padding: "20px" }}>
-      <h2>Hello {props.user.name}</h2>
-    </div>
-  );
 }
 
 const mapStatetoProps = (state) => {

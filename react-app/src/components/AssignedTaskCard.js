@@ -4,7 +4,6 @@ import { MdEdit, MdDelete } from "react-icons/md";
 import axios from "axios";
 import { editTask, deleteTask } from "../redux/actions";
 import { connect } from "react-redux";
-
 class AssignedTaskCard extends Component {
   state = {
     title: this.props.task.title,

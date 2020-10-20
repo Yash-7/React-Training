@@ -76,7 +76,7 @@ class TaskFilter extends Component {
                     />
                   </Form.Group>
                 </Col>
-                <Col>
+                <Col className="customCol2">
                   <Form.Group>
                     <Form.Control
                       name="assignee"
@@ -112,7 +112,7 @@ class TaskFilter extends Component {
                 <Form.Label column sm={2}>
                   End:
                 </Form.Label>
-                <Col sm={10}>
+                <Col className="customCol2" sm={10}>
                   <Form.Control
                     type="datetime-local"
                     name="endTime"

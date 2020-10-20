@@ -49,6 +49,9 @@ class AddUser extends Component {
             this.setState({
               errResp: "",
               succResp: "User created",
+              username: "",
+              email: "",
+              validated: false,
             });
             this.props.createUser(res.data.user);
           })
@@ -70,7 +73,6 @@ class AddUser extends Component {
       });
     }
   };
-
   render() {
     return (
       <div className="add-user">
