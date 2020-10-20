@@ -9,6 +9,7 @@ use App\Etoken;
 use App\Ftoken;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\createPassword;
+use App\Jobs\CreatePasswordMail;
 
 class AdminController extends Controller
 {
@@ -46,7 +47,7 @@ class AdminController extends Controller
             $ftoken->verificationCode = str_random(32);
             $user->ftoken()->save($ftoken);
 
-            Mail::to($user->email)->send(new createPassword($ftoken->verificationCode));
+            $this->dispatch(new CreatePasswordMail($user->email,$ftoken->verificationCode));
             return response()->json(['user' => $user], 201);
 
         } else return response()->json(['user'=>Auth::user(),'message'=>'Unauthorized. Not an admin'],401);
@@ -67,23 +68,25 @@ class AdminController extends Controller
     }
 
     public function filter(Request $request){
-
-        $users = User::where('role','=','normal');
-        // return $request->all();
-        if($request->has('name')){
-            $users->where('name','LIKE','%'.$request->get('name').'%'); 
-        }
-        if($request->has('email')){
-            $users->where('email','LIKE','%'.$request->get('email').'%');
-        }
-        if($request->has('radio')){
-            if($request->get('radio')=="verified"){
-                $users->where('isVerified','=','1');
+        if($this->is_Admin(Auth::user())){
+            $users = User::where('role','=','normal');
+            // return $request->all();
+            if($request->has('name')){
+                $users->where('name','LIKE','%'.$request->get('name').'%'); 
             }
-            if($request->get('radio')=="nonVerified"){
-                $users->where('isVerified','=','0');
+            if($request->has('email')){
+                $users->where('email','LIKE','%'.$request->get('email').'%');
             }
+            if($request->has('radio')){
+                if($request->get('radio')=="verified"){
+                    $users->where('isVerified','=','1');
+                }
+                if($request->get('radio')=="nonVerified"){
+                    $users->where('isVerified','=','0');
+                }
+            }
+            return $users->get();
         }
-        return $users->get();
+        else return response()->json(['message'=>"Unauthorised"],401);
     }
 }

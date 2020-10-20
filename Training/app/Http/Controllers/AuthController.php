@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\MyEmail;
 use App\Mail\verifyEmail;
 use App\Mail\forgotPassword;
+use App\Jobs\RegisterMails;
+use App\Jobs\ForgotPasswordMail;
 
 class AuthController extends Controller
 {
@@ -42,8 +44,8 @@ class AuthController extends Controller
             $ftoken->verificationCode = str_random(32);
             $user->ftoken()->save($ftoken);
             
-            Mail::to($user->email)->send(new verifyEmail($etoken->verificationCode));
-            
+            // Mail::to($user->email)->send(new verifyEmail($etoken->verificationCode));
+            $this->dispatch(new RegisterMails($user->email,$etoken->verificationCode));
             return response()->json(['user' => $user, 'message' => 'CREATED'], 201);
         } catch(Exception $e){
             throw $e;
@@ -120,7 +122,7 @@ class AuthController extends Controller
         $user = User::where(['email'=>$request->get('email')])->first();
         if($user!=null){
             $token = ($user->ftoken()->get())[0] ->verificationCode;
-            Mail::to($request->get('email'))->send(new forgotPassword($token));
+            $this->dispatch(new ForgotPasswordMail($request->get('email'),$token));
             return response()->json(['user'=>$user],200);
         } else {
             return response()->json(['message'=>'Email incorrect'],404);

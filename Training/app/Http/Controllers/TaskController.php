@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\Events\MyEvent;
+// require __DIR__.'../../vendor.autoload.php';
+use App\Events\NotificationEvent;
 use DateTime;
 use Carbon\Carbon;
 use App\User;
@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\newTask;
+use Pusher;
+use App\Jobs\NewTaskJob;
+use App\NotificationData;
 
 class TaskController extends Controller
 {
@@ -79,7 +82,15 @@ class TaskController extends Controller
         $task->status = 'assigned';
         
         $creator->tasks()->save($task);
-        Mail::to(User::find($request->input('assignee'))->email)->send(new newTask($task));
+
+        $data = new NotificationData;
+        $data->message = 'New task: ' . $task->title . ' has been assigned to you';
+        $data->id = $task->assignee;
+        $data->channel = 'channel';
+        $data->event = 'createTask';
+        event(new NotificationEvent($data));
+
+        $this->dispatch(new NewTaskJob(User::find($request->input('assignee'))->email,$task));
         return response()->json(['message'=>'Task created','task'=>$task],201);
     }
 
@@ -91,8 +102,14 @@ class TaskController extends Controller
         if(Auth::id()!=$task->assignee) return response()->json(['message'=>'User unauthorised'],401);
         $task->status = $request->input('status');
         $task->save();
-        // Event::fire(new Event("hello"));
-        event(new MyEvent('hello world'));
+
+        $data = new NotificationData;
+        $data->message = 'Status of the task: ' . $task->title . ' Changed to ' . $request->input('status');
+        $data->id = $task->user_id;
+        $data->channel = 'my-channel';
+        $data->event = 'statusUpdate';
+        event(new NotificationEvent($data));
+        
         return response()->json(['message'=>'Status updated'],200);
     }
 
