@@ -17,6 +17,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\NotificationEvent' => [
             'App\Listeners\NotificationListener',
-        ],        
+        ],
     ];
 }

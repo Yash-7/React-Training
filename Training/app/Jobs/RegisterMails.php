@@ -15,26 +15,13 @@ class RegisterMails extends Job implements ShouldQueue
 {
     use SerializesModels;
 
-    protected $email,$token;
+    protected $email, $token;
 
-    /**
-     * Create a new job instance.
-     *
-     * @param  User  $user
-     * @return void
-     */
-    public function __construct($email,$token)
+    public function __construct($email, $token)
     {
         $this->email = $email;
-        $this->token=$token;
+        $this->token = $token;
     }
-
-    /**
-     * Execute the job.
-     *
-     * @param  Mailer  $mailer
-     * @return void
-     */
     public function handle()
     {
         Mail::to($this->email)->send(new verifyEmail($this->token));

@@ -11,19 +11,19 @@ class newTask extends Mailable
 {
     use Queueable, SerializesModels;
 
-    
+
     public function __construct($task)
     {
         $this->task = $task;
     }
 
-    
+
     public function build()
     {
         return $this->view('newTask')
-        ->with([
-            'title'=>$this->task->title,
-            'desc'=>$this->task->description
-        ]);
+            ->with([
+                'title' => $this->task->title,
+                'desc' => $this->task->description
+            ]);
     }
 }

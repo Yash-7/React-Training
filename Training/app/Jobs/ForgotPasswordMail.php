@@ -13,12 +13,12 @@ class ForgotPasswordMail extends Job implements ShouldQueue
 {
     use SerializesModels;
 
-    protected $email,$token;
+    protected $email, $token;
 
-    public function __construct($email,$token)
+    public function __construct($email, $token)
     {
         $this->email = $email;
-        $this->token=$token;
+        $this->token = $token;
     }
 
     public function handle()

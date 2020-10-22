@@ -19,8 +19,8 @@ class createPassword extends Mailable
     public function build()
     {
         return $this->view('createPassword')
-        ->with([
-            'token'=>$this->token
-        ]);
+            ->with([
+                'token' => $this->token
+            ]);
     }
 }

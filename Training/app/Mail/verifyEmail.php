@@ -11,18 +11,18 @@ class verifyEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    
+
     public function __construct($token)
     {
         $this->token = $token;
     }
 
-    
+
     public function build()
     {
         return $this->view('verifyEmail')
-        ->with([
-            'token'=>$this->token,
-        ]);
+            ->with([
+                'token' => $this->token,
+            ]);
     }
 }

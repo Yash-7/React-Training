@@ -17,13 +17,16 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 class User extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject
 {
     use Authenticatable, Authorizable, SoftDeletes;
-    public function etoken() {
+    public function etoken()
+    {
         return $this->hasOne(Etoken::class);
     }
-    public function ftoken() {
+    public function ftoken()
+    {
         return $this->hasOne(Ftoken::class);
     }
-    public function tasks(){
+    public function tasks()
+    {
         return $this->hasMany(Task::class);
     }
     protected $fillable = [
